@@ -1,0 +1,85 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml"
+      xmlns:h="http://xmlns.jcp.org/jsf/html"
+      xmlns:f="http://xmlns.jcp.org/jsf/core"
+      xmlns:ui="http://xmlns.jcp.org/jsf/facelets">
+
+    <ui:composition template="/templates/layout.xhtml">
+        <ui:define name="title">Course List</ui:define>
+        
+        <ui:define name="content">
+            <div class="card" style="margin-top: 20px;">
+                <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px; flex-wrap: wrap;">
+                    <h2 style="margin: 0;">📚 Available Courses</h2>
+                    <div style="color: #555 !important;">
+                        <strong style="color: #333 !important;">#{courseBean.totalCoursesCount}</strong> courses available
+                        <span style="margin-left: 15px;">
+                            <strong style="color: #333 !important;">#{courseBean.availableCoursesCount}</strong> with seats available
+                        </span>
+                    </div>
+                </div>
+                
+                <!-- Search and Filter Bar -->
+                <div class="search-bar">
+                    <h:form id="searchForm" style="display: flex; width: 100%; gap: 10px; flex-wrap: wrap;">
+                        <h:inputText value="#{courseBean.searchTerm}" 
+                                     placeholder="Search by course name or instructor..."
+                                     style="flex: 1; min-width: 250px; padding: 12px 15px; border: 2px solid #dee2e6; border-radius: 8px;"/>
+                        <h:commandButton value="🔍 Search" action="#{courseBean.searchCourses()}" 
+                                        styleClass="button"/>
+                        <h:commandButton value="🔄 Show All" action="#{courseBean.loadCourses()}" 
+                                        styleClass="button button-secondary"/>
+                        <h:commandButton value="✅ Available Only" action="#{courseBean.loadAvailableCourses()}" 
+                                        styleClass="button button-outline"/>
+                    </h:form>
+                </div>
+
+                <!-- Course Grid -->
+                <ui:fragment rendered="#{not empty courseBean.courses}">
+                    <div class="course-grid">
+                        <ui:repeat value="#{courseBean.courses}" var="course">
+                            <div class="course-card">
+                                <h3>#{course.courseName}</h3>
+                                <p class="instructor">👨‍🏫 #{course.instructor}</p>
+                                
+                                <div class="fee price price-small">₹#{course.fee}</div>
+                                
+                                <div class="availability">
+                                    <span style="color: #333 !important;">
+                                        <strong style="color: #333 !important;">#{course.capacity - course.enrolledCount}</strong> seats available
+                                    </span>
+                                    <span class="badge #{course.capacity - course.enrolledCount > 10 ? 'badge-success' : (course.capacity - course.enrolledCount > 0 ? 'badge-warning' : 'badge-danger')}">
+                                        #{course.enrolledCount}/#{course.capacity}
+                                    </span>
+                                </div>
+
+                                <p class="date-display">
+                                    📅 #{courseBean.formatDate(course.startDate)} - #{courseBean.formatDate(course.endDate)}
+                                </p>
+
+                                <div style="margin-top: 20px;">
+                                    <h:form>
+                                        <h:commandLink value="View Details →" 
+                                                      action="#{courseBean.viewCourseDetails(course.courseId)}"
+                                                      styleClass="button" 
+                                                      style="width: 100%; display: block; text-align: center; text-decoration: none; padding: 10px;"/>
+                                    </h:form>
+                                </div>
+                            </div>
+                        </ui:repeat>
+                    </div>
+                </ui:fragment>
+
+                <!-- Empty State -->
+                <ui:fragment rendered="#{empty courseBean.courses}">
+                    <div class="empty-state">
+                        <p style="font-size: 1.2rem; margin-top: 20px;">No courses found</p>
+                        <p style="color: #666 !important;">Try adjusting your search criteria</p>
+                    </div>
+                </ui:fragment>
+            </div>
+        </ui:define>
+    </ui:composition>
+
+</html>

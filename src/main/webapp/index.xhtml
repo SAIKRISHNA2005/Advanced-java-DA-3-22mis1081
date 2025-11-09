@@ -1,0 +1,29 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml"
+      xmlns:h="http://xmlns.jcp.org/jsf/html"
+      xmlns:f="http://xmlns.jcp.org/jsf/core">
+
+    <h:head>
+        <title>Welcome - Online Course Enrollment</title>
+        <meta charset="UTF-8"/>
+        <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+        <h:outputStylesheet library="css" name="style.css"/>
+    </h:head>
+
+    <h:body>
+        <div style="min-height: 100vh; display: flex; align-items: center; justify-content: center; background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);">
+            <div class="card" style="max-width: 600px; text-align: center; padding: 50px;">
+                <h1 style="color: #667eea; font-size: 2.5rem; margin-bottom: 20px;">🎓 Welcome</h1>
+                <h2 style="color: #333; margin-bottom: 30px;">Online Course Enrollment System</h2>
+                <p style="font-size: 1.1rem; color: #666; margin-bottom: 40px;">
+                    Your gateway to quality education. Browse courses, enroll, and start your learning journey today!
+                </p>
+                <h:form>
+                    <h:commandButton value="Get Started →" action="home" styleClass="button button-large"/>
+                </h:form>
+            </div>
+        </div>
+    </h:body>
+
+</html>

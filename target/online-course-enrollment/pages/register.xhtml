@@ -1,0 +1,86 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml"
+      xmlns:h="http://xmlns.jcp.org/jsf/html"
+      xmlns:f="http://xmlns.jcp.org/jsf/core"
+      xmlns:ui="http://xmlns.jcp.org/jsf/facelets">
+
+    <ui:composition template="/templates/layout.xhtml">
+        <ui:define name="title">Student Registration</ui:define>
+        
+        <ui:define name="content">
+            <div class="card" style="max-width: 700px; margin: 20px auto;">
+                <h2>✨ Create Your Account</h2>
+                <p style="color: #555 !important; margin-bottom: 30px;">Fill in your details to get started</p>
+
+                <h:form id="registerForm">
+                    <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 20px;">
+                        <div class="form-group">
+                            <h:outputLabel for="firstName" value="First Name *"/>
+                            <h:inputText id="firstName" value="#{studentBean.firstName}" 
+                                        required="true" requiredMessage="First name is required"
+                                        styleClass="form-control" placeholder="John"/>
+                            <h:message for="firstName" styleClass="error"/>
+                        </div>
+
+                        <div class="form-group">
+                            <h:outputLabel for="lastName" value="Last Name *"/>
+                            <h:inputText id="lastName" value="#{studentBean.lastName}" 
+                                        required="true" requiredMessage="Last name is required"
+                                        styleClass="form-control" placeholder="Doe"/>
+                            <h:message for="lastName" styleClass="error"/>
+                        </div>
+                    </div>
+
+                    <div class="form-group">
+                        <h:outputLabel for="email" value="Email Address *"/>
+                        <h:inputText id="email" value="#{studentBean.email}" 
+                                    required="true" requiredMessage="Email is required"
+                                    styleClass="form-control" placeholder="john.doe@example.com">
+                            <f:validateRegex pattern="^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$" 
+                                            message="Please enter a valid email address"/>
+                        </h:inputText>
+                        <h:message for="email" styleClass="error"/>
+                    </div>
+
+                    <div class="form-group">
+                        <h:outputLabel for="password" value="Password *"/>
+                        <h:inputSecret id="password" value="#{studentBean.password}" 
+                                      required="true" requiredMessage="Password is required"
+                                      styleClass="form-control" placeholder="Enter strong password">
+                            <f:validator validatorId="passwordStrengthValidator"/>
+                        </h:inputSecret>
+                        <h:message for="password" styleClass="error"/>
+                        <small style="color: #555 !important; display: block; margin-top: 5px;">
+                            🔒 Password must be at least 8 characters with uppercase, lowercase, number, and special character (@$!%*?&amp;)
+                        </small>
+                    </div>
+
+                    <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 20px;">
+                        <div class="form-group">
+                            <h:outputLabel for="phone" value="Phone Number"/>
+                            <h:inputText id="phone" value="#{studentBean.phone}" 
+                                        styleClass="form-control" placeholder="+1 234 567 8900"/>
+                            <h:message for="phone" styleClass="error"/>
+                        </div>
+
+                        <div class="form-group">
+                            <h:outputLabel for="address" value="Address"/>
+                            <h:inputText id="address" value="#{studentBean.address}" 
+                                        styleClass="form-control" placeholder="123 Main St, City, State"/>
+                            <h:message for="address" styleClass="error"/>
+                        </div>
+                    </div>
+
+                    <div style="margin-top: 30px; display: flex; gap: 10px;">
+                        <h:commandButton value="✓ Register" action="#{studentBean.register}" 
+                                        styleClass="button button-success button-large" style="flex: 1;"/>
+                        <h:commandButton value="Cancel" action="home" 
+                                        styleClass="button button-secondary" style="flex: 1;"/>
+                    </div>
+                </h:form>
+            </div>
+        </ui:define>
+    </ui:composition>
+
+</html>

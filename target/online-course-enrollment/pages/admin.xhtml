@@ -1,0 +1,215 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml"
+      xmlns:h="http://xmlns.jcp.org/jsf/html"
+      xmlns:f="http://xmlns.jcp.org/jsf/core"
+      xmlns:ui="http://xmlns.jcp.org/jsf/facelets">
+
+    <ui:composition template="/templates/layout.xhtml">
+        <ui:define name="title">Admin - Course Management</ui:define>
+        
+        <ui:define name="content">
+            <f:metadata>
+                <f:event type="preRenderView" listener="#{enrollmentBean.viewAllEnrollments}"/>
+            </f:metadata>
+
+            <ui:fragment rendered="#{studentBean.admin}">
+                <div class="card">
+                    <h2>🔧 Course Management</h2>
+                <p style="color: #555 !important; margin-bottom: 30px;">Manage all courses: view, add, edit, and delete courses.</p>
+
+                <!-- Add New Course Form -->
+                <div class="card" style="background: #f8f9fa; margin-bottom: 30px;">
+                    <h3 style="color: #333 !important; margin-bottom: 20px;">➕ Add New Course</h3>
+                    <h:form id="createCourseForm">
+                        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 20px;">
+                            <div class="form-group">
+                                <h:outputLabel for="courseName" value="Course Name *"/>
+                                <h:inputText id="courseName" value="#{courseBean.courseName}" 
+                                            styleClass="form-control" 
+                                            required="true" requiredMessage="Course name is required"
+                                            placeholder="Enter course name"/>
+                                <h:message for="courseName" styleClass="error"/>
+                            </div>
+
+                            <div class="form-group">
+                                <h:outputLabel for="instructor" value="Instructor *"/>
+                                <h:inputText id="instructor" value="#{courseBean.instructor}" 
+                                            styleClass="form-control" 
+                                            required="true" requiredMessage="Instructor name is required"
+                                            placeholder="Enter instructor name"/>
+                                <h:message for="instructor" styleClass="error"/>
+                            </div>
+                        </div>
+
+                        <div class="form-group">
+                            <h:outputLabel for="description" value="Description *"/>
+                            <h:inputTextarea id="description" value="#{courseBean.description}" 
+                                            styleClass="form-control" 
+                                            required="true" requiredMessage="Description is required"
+                                            rows="4"
+                                            placeholder="Enter course description"/>
+                            <h:message for="description" styleClass="error"/>
+                        </div>
+
+                        <div style="display: grid; grid-template-columns: 1fr 1fr 1fr 1fr; gap: 20px;">
+                            <div class="form-group">
+                                <h:outputLabel for="startDate" value="Start Date *"/>
+                                <h:inputText id="startDate" value="#{courseBean.startDate}" 
+                                            type="date"
+                                            styleClass="form-control" 
+                                            required="true" requiredMessage="Start date is required">
+                                    <f:converter converterId="dateConverter"/>
+                                </h:inputText>
+                                <h:message for="startDate" styleClass="error"/>
+                            </div>
+
+                            <div class="form-group">
+                                <h:outputLabel for="endDate" value="End Date *"/>
+                                <h:inputText id="endDate" value="#{courseBean.endDate}" 
+                                            type="date"
+                                            styleClass="form-control" 
+                                            required="true" requiredMessage="End date is required">
+                                    <f:converter converterId="dateConverter"/>
+                                </h:inputText>
+                                <h:message for="endDate" styleClass="error"/>
+                            </div>
+
+                            <div class="form-group">
+                                <h:outputLabel for="fee" value="Fee (₹) *"/>
+                                <h:inputText id="fee" value="#{courseBean.fee}" 
+                                            type="number"
+                                            styleClass="form-control" 
+                                            required="true" requiredMessage="Fee is required"
+                                            placeholder="0.00">
+                                    <f:converter converterId="feeConverter"/>
+                                    <f:validateDoubleRange minimum="0.01" maximum="999999.99"/>
+                                </h:inputText>
+                                <h:message for="fee" styleClass="error"/>
+                            </div>
+
+                            <div class="form-group">
+                                <h:outputLabel for="capacity" value="Capacity *"/>
+                                <h:inputText id="capacity" value="#{courseBean.capacity}" 
+                                            type="number"
+                                            styleClass="form-control" 
+                                            required="true" requiredMessage="Capacity is required"
+                                            placeholder="50"/>
+                                <h:message for="capacity" styleClass="error"/>
+                            </div>
+                        </div>
+
+                        <div style="margin-top: 20px;">
+                            <ui:fragment rendered="#{empty courseBean.courseId}">
+                                <h:commandButton value="Create Course" action="#{courseBean.createCourse}" 
+                                              styleClass="button button-success"/>
+                            </ui:fragment>
+                            <ui:fragment rendered="#{not empty courseBean.courseId}">
+                                <h:commandButton value="Update Course" action="#{courseBean.updateCourse}" 
+                                              styleClass="button button-success"/>
+                                <h:commandButton value="Cancel" action="#{courseBean.cancelEdit}" 
+                                              styleClass="button button-secondary" style="margin-left: 10px;"/>
+                            </ui:fragment>
+                            <h:commandButton value="Reset" type="reset" 
+                                          styleClass="button button-secondary" style="margin-left: 10px;"/>
+                        </div>
+                    </h:form>
+                </div>
+
+                <!-- Course List -->
+                <div class="card">
+                    <h3 style="color: #333 !important; margin-bottom: 20px;">📚 All Courses</h3>
+                    
+                    <ui:repeat value="#{courseBean.courses}" var="course">
+                        <div class="enrollment-item" style="margin-bottom: 20px;">
+                            <div style="display: flex; justify-content: space-between; align-items: start; flex-wrap: wrap;">
+                                <div style="flex: 1;">
+                                    <h3 style="color: var(--primary-color) !important; margin-bottom: 10px;">#{course.courseName}</h3>
+                                    <p style="color: #555 !important; margin: 5px 0;"><strong>Instructor:</strong> #{course.instructor}</p>
+                                    <p style="color: #555 !important; margin: 5px 0;"><strong>Description:</strong> #{course.description}</p>
+                                    <p style="color: #555 !important; margin: 5px 0;"><strong>Fee:</strong> ₹#{course.fee}</p>
+                                    <p style="color: #555 !important; margin: 5px 0;"><strong>Capacity:</strong> #{course.enrolledCount} / #{course.capacity}</p>
+                                    <p style="color: #555 !important; margin: 5px 0;"><strong>Duration:</strong> #{courseBean.formatDate(course.startDate)} - #{courseBean.formatDate(course.endDate)}</p>
+                                </div>
+                                <div style="display: flex; gap: 10px; flex-wrap: wrap;">
+                                    <h:form>
+                                        <h:commandButton value="Edit" 
+                                                        action="#{courseBean.editCourse}"
+                                                        styleClass="button button-small">
+                                            <f:param name="courseId" value="#{course.courseId}"/>
+                                        </h:commandButton>
+                                    </h:form>
+                                    <h:form>
+                                        <h:commandButton value="Delete" 
+                                                        action="#{courseBean.deleteCourse}"
+                                                        styleClass="button button-danger button-small"
+                                                        onclick="return confirm('Are you sure you want to delete this course?');">
+                                            <f:param name="courseId" value="#{course.courseId}"/>
+                                        </h:commandButton>
+                                    </h:form>
+                                </div>
+                            </div>
+                        </div>
+                    </ui:repeat>
+
+                    <ui:fragment rendered="#{empty courseBean.courses}">
+                        <div class="empty-state">
+                            <p style="color: #666 !important;">No courses found</p>
+                        </div>
+                    </ui:fragment>
+                </div>
+
+                <!-- Enrolled Students List -->
+                <div class="card" style="margin-top: 30px;">
+                    <h3 style="color: #333 !important; margin-bottom: 20px;">👥 All Enrollments</h3>
+                    <p style="color: #555 !important; margin-bottom: 20px;">View all students enrolled in courses.</p>
+                    
+                    <ui:repeat value="#{enrollmentBean.allEnrollments}" var="enrollment">
+                        <div class="enrollment-item" style="margin-bottom: 15px;">
+                            <div style="display: flex; justify-content: space-between; align-items: start; flex-wrap: wrap;">
+                                <div style="flex: 1;">
+                                    <h4 style="color: var(--primary-color) !important; margin-bottom: 5px;">#{enrollment.course.courseName}</h4>
+                                    <p style="color: #555 !important; margin: 3px 0;"><strong>Student:</strong> #{enrollment.student.firstName} #{enrollment.student.lastName} (#{enrollment.student.email})</p>
+                                    <p style="color: #555 !important; margin: 3px 0;"><strong>Enrollment Date:</strong> #{enrollmentBean.formatDateTime(enrollment.enrollmentDate)}</p>
+                                    <p style="color: #555 !important; margin: 3px 0;">
+                                        <strong>Status:</strong> 
+                                        <span class="status #{enrollment.status == 'ACTIVE' ? 'status-active' : 'status-cancelled'}">#{enrollment.status}</span>
+                                    </p>
+                                </div>
+                            </div>
+                        </div>
+                    </ui:repeat>
+
+                    <ui:fragment rendered="#{empty enrollmentBean.allEnrollments}">
+                        <div class="empty-state">
+                            <p style="color: #666 !important;">No enrollments found</p>
+                        </div>
+                    </ui:fragment>
+                </div>
+                </div>
+            </ui:fragment>
+
+            <ui:fragment rendered="#{not studentBean.admin}">
+                <div class="card">
+                    <div class="empty-state">
+                        <p style="font-size: 1.2rem; color: #666 !important;">Access Denied</p>
+                        <p style="color: #999 !important; margin-top: 10px;">
+                            <ui:fragment rendered="#{empty studentBean.currentStudent}">
+                                Please login as admin to access this page.
+                            </ui:fragment>
+                            <ui:fragment rendered="#{not empty studentBean.currentStudent}">
+                                You do not have permission to access the admin page. Only administrators can access this page.
+                            </ui:fragment>
+                        </p>
+                        <h:form>
+                            <h:commandButton value="Go to Home" action="home" 
+                                            styleClass="button" style="margin-top: 20px;"/>
+                        </h:form>
+                    </div>
+                </div>
+            </ui:fragment>
+        </ui:define>
+    </ui:composition>
+
+</html>
+

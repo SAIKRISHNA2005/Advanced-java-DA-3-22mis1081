@@ -1,0 +1,108 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml"
+      xmlns:h="http://xmlns.jcp.org/jsf/html"
+      xmlns:f="http://xmlns.jcp.org/jsf/core"
+      xmlns:ui="http://xmlns.jcp.org/jsf/facelets">
+
+    <ui:composition template="/templates/layout.xhtml">
+        <ui:define name="title">Payment</ui:define>
+        
+        <ui:define name="content">
+            <f:metadata>
+                <f:event type="preRenderView" listener="#{paymentBean.init}"/>
+            </f:metadata>
+
+            <ui:fragment rendered="#{not empty studentBean.currentStudent}">
+                <ui:fragment rendered="#{not empty paymentBean.selectedCourse}">
+                    <div class="card" style="max-width: 800px; margin: 20px auto;">
+                        <h2>💳 Complete Payment</h2>
+
+                    <!-- Course Summary -->
+                    <div class="course-detail-header" style="margin: 30px 0;">
+                        <h3 style="margin: 0 0 10px 0; color: white !important;">#{paymentBean.selectedCourse.courseName}</h3>
+                        <p style="color: white !important; opacity: 0.95; margin: 5px 0;">Instructor: #{paymentBean.selectedCourse.instructor}</p>
+                        <div class="price" style="margin-top: 20px; color: white !important; font-size: 2rem;">₹#{paymentBean.selectedCourse.fee}</div>
+                    </div>
+
+                    <!-- Payment Form -->
+                    <h:form id="paymentForm">
+                        <div class="form-group">
+                            <h:outputLabel for="paymentMethod" value="Payment Method *"/>
+                            <h:selectOneMenu id="paymentMethod" value="#{paymentBean.paymentMethod}" 
+                                             required="true" requiredMessage="Please select a payment method"
+                                             styleClass="form-control"
+                                             valueChangeListener="#{paymentBean.onPaymentMethodChange}">
+                                <f:selectItem itemValue="" itemLabel="-- Select Payment Method --"/>
+                                <f:selectItems value="#{paymentBean.paymentMethods}" var="method"
+                                               itemValue="#{method}" itemLabel="#{method}"/>
+                            </h:selectOneMenu>
+                            <h:message for="paymentMethod" styleClass="error"/>
+                        </div>
+
+                        <div class="form-group">
+                            <h:outputLabel for="transactionId" value="Transaction ID (Optional)"/>
+                            <h:inputText id="transactionId" value="#{paymentBean.transactionId}" 
+                                        styleClass="form-control" 
+                                        placeholder="Enter transaction ID if available"/>
+                            <h:message for="transactionId" styleClass="error"/>
+                            <small style="color: #555 !important; display: block; margin-top: 5px;">
+                                💡 Transaction ID will be auto-generated if left empty
+                            </small>
+                        </div>
+
+                        <!-- Payment Summary -->
+                        <div class="detail-section" style="background: #f8f9fa; margin: 30px 0;">
+                            <div class="flex-between" style="padding: 15px 0; border-bottom: 2px solid #dee2e6;">
+                                <span style="font-weight: 600;">Course Fee:</span>
+                                <span style="font-size: 1.2rem; font-weight: bold;">₹#{paymentBean.selectedCourse.fee}</span>
+                            </div>
+                            <div class="flex-between" style="padding: 15px 0;">
+                                <span style="font-size: 1.3rem; font-weight: bold;">Total Amount:</span>
+                                <span class="price">₹#{paymentBean.selectedCourse.fee}</span>
+                            </div>
+                        </div>
+
+                        <div style="display: flex; gap: 10px; margin-top: 30px;">
+                            <h:commandButton value="💳 Process Payment" 
+                                            action="#{paymentBean.processPayment}"
+                                            styleClass="button button-success button-large" style="flex: 1;"/>
+                            <h:commandButton value="Cancel" action="courseList" 
+                                            styleClass="button button-secondary" style="flex: 1;"/>
+                        </div>
+                    </h:form>
+                    </div>
+                </ui:fragment>
+
+                <ui:fragment rendered="#{empty paymentBean.selectedCourse}">
+                    <div class="card">
+                        <div class="empty-state">
+                            <p style="font-size: 1.2rem; color: #666 !important;">No course selected for payment</p>
+                            <p style="color: #999 !important; margin-top: 10px;">Please enroll in a course first to proceed with payment.</p>
+                            <h:form>
+                                <h:commandButton value="Browse Courses" action="courseList" 
+                                                styleClass="button" style="margin-top: 20px;"/>
+                                <h:commandButton value="Go to Dashboard" action="dashboard" 
+                                                styleClass="button button-secondary" style="margin-top: 20px; margin-left: 10px;"/>
+                            </h:form>
+                        </div>
+                    </div>
+                </ui:fragment>
+            </ui:fragment>
+
+            <ui:fragment rendered="#{empty studentBean.currentStudent}">
+                <div class="card">
+                    <div class="empty-state">
+                        <p style="font-size: 1.2rem; color: #666 !important;">Please login to access payment page</p>
+                        <p style="color: #999 !important; margin-top: 10px;">You need to be logged in to process payments.</p>
+                        <h:form>
+                            <h:commandButton value="Go to Login" action="home" 
+                                            styleClass="button" style="margin-top: 20px;"/>
+                        </h:form>
+                    </div>
+                </div>
+            </ui:fragment>
+        </ui:define>
+    </ui:composition>
+
+</html>
