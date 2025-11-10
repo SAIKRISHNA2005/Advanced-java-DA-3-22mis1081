@@ -5,9 +5,12 @@ import com.example.onlinecourse.service.StudentService;
 
 import jakarta.faces.application.FacesMessage;
 import jakarta.faces.context.FacesContext;
+import jakarta.faces.event.ComponentSystemEvent;
 import jakarta.inject.Named;
 import jakarta.enterprise.context.SessionScoped;
 import java.io.Serializable;
+import java.util.List;
+import java.util.stream.Collectors;
 
 /**
  * JSF Managed Bean for Student operations.
@@ -21,6 +24,7 @@ public class StudentBean implements Serializable {
     private StudentService studentService;
     private Student currentStudent;
     private Student newStudent;
+    private List<Student> allStudents;
 
     // Registration form fields
     private String firstName;
@@ -106,6 +110,7 @@ public class StudentBean implements Serializable {
     public String logout() {
         currentStudent = null;
         FacesContext.getCurrentInstance().getExternalContext().invalidateSession();
+        allStudents = null;
         return "home?faces-redirect=true";
     }
 
@@ -268,6 +273,104 @@ public class StudentBean implements Serializable {
             phone = currentStudent.getPhone();
             address = currentStudent.getAddress();
         }
+    }
+
+    /**
+     * Load all students for admin management.
+     */
+    public void loadAllStudents() {
+        if (isAdmin()) {
+            allStudents = studentService.getAllStudents();
+        }
+    }
+
+    /**
+     * JSF event wrapper for loading students on view render.
+     *
+     * @param event component system event
+     */
+    public void loadAllStudents(ComponentSystemEvent event) {
+        loadAllStudents();
+    }
+
+    /**
+     * Get list of students excluding admin accounts for management.
+     *
+     * @return list of non-admin students
+     */
+    public List<Student> getManagedStudents() {
+        if (!isAdmin()) {
+            return List.of();
+        }
+        if (allStudents == null) {
+            loadAllStudents();
+        }
+        if (allStudents == null) {
+            return List.of();
+        }
+        return allStudents.stream()
+                .filter(student -> student.getEmail() != null && !isAdminEmail(student.getEmail()))
+                .collect(Collectors.toList());
+    }
+
+    /**
+     * Delete student (admin operation).
+     *
+     * @return navigation outcome
+     */
+    public String deleteStudent() {
+        if (!isAdmin()) {
+            FacesContext.getCurrentInstance().addMessage(null,
+                    new FacesMessage(FacesMessage.SEVERITY_ERROR, "Error", "Access denied."));
+            return null;
+        }
+
+        String studentIdParam = FacesContext.getCurrentInstance().getExternalContext()
+                .getRequestParameterMap().get("studentId");
+        if (studentIdParam == null || studentIdParam.isEmpty()) {
+            FacesContext.getCurrentInstance().addMessage(null,
+                    new FacesMessage(FacesMessage.SEVERITY_ERROR, "Error", "Student ID is required."));
+            return null;
+        }
+
+        try {
+            Long studentId = Long.parseLong(studentIdParam);
+            Student student = studentService.getStudentById(studentId);
+            if (student == null) {
+                FacesContext.getCurrentInstance().addMessage(null,
+                        new FacesMessage(FacesMessage.SEVERITY_ERROR, "Error", "Student not found."));
+                return null;
+            }
+            if (student.getEmail() != null && isAdminEmail(student.getEmail())) {
+                FacesContext.getCurrentInstance().addMessage(null,
+                        new FacesMessage(FacesMessage.SEVERITY_WARN, "Warning", "Cannot delete administrator account."));
+                return null;
+            }
+
+            studentService.deleteStudent(studentId);
+            FacesContext.getCurrentInstance().addMessage(null,
+                    new FacesMessage(FacesMessage.SEVERITY_INFO, "Success", "Student deleted successfully."));
+            loadAllStudents();
+            return "manageUsers?faces-redirect=true";
+        } catch (NumberFormatException e) {
+            FacesContext.getCurrentInstance().addMessage(null,
+                    new FacesMessage(FacesMessage.SEVERITY_ERROR, "Error", "Invalid student ID."));
+            return null;
+        } catch (Exception e) {
+            FacesContext.getCurrentInstance().addMessage(null,
+                    new FacesMessage(FacesMessage.SEVERITY_ERROR, "Error", e.getMessage()));
+            return null;
+        }
+    }
+
+    /**
+     * Helper to check admin email.
+     *
+     * @param email email to verify
+     * @return true if email belongs to admin
+     */
+    private boolean isAdminEmail(String email) {
+        return "admin@course.com".equalsIgnoreCase(email);
     }
 }
 

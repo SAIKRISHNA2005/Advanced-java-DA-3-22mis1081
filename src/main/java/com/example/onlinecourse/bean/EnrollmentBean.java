@@ -203,6 +203,18 @@ public class EnrollmentBean implements Serializable {
                 .count();
     }
 
+    /**
+     * Get total enrollment count across the platform.
+     *
+     * @return total enrollments
+     */
+    public int getTotalEnrollmentsCount() {
+        if (allEnrollments == null) {
+            allEnrollments = enrollmentService.getAllEnrollments();
+        }
+        return allEnrollments != null ? allEnrollments.size() : 0;
+    }
+
     // Getters and Setters
     public List<Enrollment> getEnrollments() {
         if (enrollments == null) {

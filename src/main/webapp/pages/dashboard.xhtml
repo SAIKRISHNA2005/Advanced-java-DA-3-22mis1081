@@ -13,120 +13,171 @@
                 <f:event type="preRenderView" listener="#{enrollmentBean.loadEnrollments}"/>
             </f:metadata>
             <ui:fragment rendered="#{not empty studentBean.currentStudent}">
-                <!-- Welcome Section -->
-                <div class="welcome-card">
-                    <h2 style="color: white !important;">Welcome back, #{studentBean.currentStudent.firstName} #{studentBean.currentStudent.lastName}! 👋</h2>
-                    <p style="color: white !important; opacity: 0.95; margin: 10px 0;">#{studentBean.currentStudent.email}</p>
-                    <div style="margin-top: 20px;">
-                        <h:form>
-                            <h:commandButton value="Browse Courses" action="courseList" 
-                                            styleClass="button button-outline" style="margin-right: 10px; color: white !important; border-color: white !important;"/>
-                            <h:commandButton value="Edit Profile" action="profile" 
-                                            styleClass="button button-outline" style="margin-right: 10px; color: white !important; border-color: white !important;"/>
-                            <h:commandButton value="Logout" action="#{studentBean.logout}" 
-                                            styleClass="button" style="background: rgba(255, 255, 255, 0.2) !important; color: white !important; border: 2px solid white !important;"/>
-                        </h:form>
-                    </div>
-                </div>
-
-                <!-- Statistics -->
-                <div class="stats-grid">
-                    <div class="stat-card">
-                        <div class="stat-value">#{enrollmentBean.activeEnrollmentsCount}</div>
-                        <div class="stat-label">Active Enrollments</div>
-                    </div>
-                    <div class="stat-card">
-                        <div class="stat-value">#{paymentBean.totalPaymentsCount}</div>
-                        <div class="stat-label">Total Payments</div>
-                    </div>
-                    <div class="stat-card">
-                        <div class="stat-value">₹#{paymentBean.totalSpent}</div>
-                        <div class="stat-label">Total Spent</div>
-                    </div>
-                </div>
-
-                <!-- My Enrollments -->
-                <div class="card">
-                    <h2>📚 My Enrollments</h2>
-                    <ui:repeat value="#{enrollmentBean.enrollments}" var="enrollment">
-                        <div class="enrollment-item">
-                            <div style="display: flex; justify-content: space-between; align-items: start; flex-wrap: wrap;">
-                                <div style="flex: 1;">
-                                    <h3 style="color: var(--primary-color) !important;">#{enrollment.course.courseName}</h3>
-                                    <p style="color: #555 !important; margin: 5px 0;">👨‍🏫 #{enrollment.course.instructor}</p>
-                                    <p style="color: #555 !important; margin: 5px 0;">💰 ₹#{enrollment.course.fee}</p>
-                                    <p style="color: #555 !important; margin: 5px 0;">📅 Enrolled: #{enrollmentBean.formatDateTime(enrollment.enrollmentDate)}</p>
-                                    <p style="margin-top: 10px;">
-                                        <span class="status #{enrollment.status == 'ACTIVE' ? 'status-active' : 'status-cancelled'}">
-                                            #{enrollment.status}
-                                        </span>
-                                    </p>
-                                </div>
-                                <div>
-                                    <ui:fragment rendered="#{enrollment.status == 'ACTIVE'}">
-                                        <h:form>
-                                            <h:commandButton value="Cancel Enrollment" 
-                                                            action="#{enrollmentBean.cancelEnrollment}"
-                                                            styleClass="button button-danger button-small"
-                                                            onclick="return confirm('Are you sure you want to cancel this enrollment?');">
-                                                <f:param name="enrollmentId" value="#{enrollment.enrollmentId}"/>
-                                            </h:commandButton>
-                                        </h:form>
-                                    </ui:fragment>
-                                </div>
-                            </div>
-                        </div>
-                    </ui:repeat>
-                    <ui:fragment rendered="#{empty enrollmentBean.enrollments}">
-                        <div class="empty-state">
-                            <p style="color: #666 !important;">No enrollments yet</p>
+                <ui:fragment rendered="#{studentBean.admin}">
+                    <div class="welcome-card">
+                        <h2 style="color: white !important;">Welcome, Admin! 👋</h2>
+                        <p style="color: white !important; opacity: 0.95; margin: 10px 0;">
+                            Focus on keeping courses and learners up to date.
+                        </p>
+                        <div style="margin-top: 20px;">
                             <h:form>
-                                <h:commandButton value="Browse Courses" action="courseList" 
-                                                styleClass="button" style="margin-top: 20px;"/>
+                                <h:commandButton value="Manage Courses" action="admin"
+                                                styleClass="button button-outline"
+                                                style="margin-right: 10px; color: white !important; border-color: white !important;"/>
+                                <h:commandButton value="Manage Users" action="manageUsers"
+                                                styleClass="button button-outline"
+                                                style="margin-right: 10px; color: white !important; border-color: white !important;"/>
+                                <h:commandButton value="Logout" action="#{studentBean.logout}"
+                                                styleClass="button"
+                                                style="background: rgba(255, 255, 255, 0.2) !important; color: white !important; border: 2px solid white !important;"/>
                             </h:form>
                         </div>
-                    </ui:fragment>
-                </div>
+                    </div>
 
-                <!-- Payment History -->
-                <div class="card">
-                    <h2>💳 Payment History</h2>
-                    <ui:repeat value="#{paymentBean.payments}" var="payment">
-                        <div class="payment-item">
-                            <div style="display: flex; justify-content: space-between; align-items: start; flex-wrap: wrap;">
-                                <div style="flex: 1;">
-                                    <h3 style="color: var(--primary-color) !important;">#{payment.course.courseName}</h3>
-                                    <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 15px; margin-top: 10px;">
-                                        <div>
-                                            <strong style="color: #333 !important;">Amount:</strong> 
-                                            <span class="price price-small" style="color: var(--success-color) !important;">₹#{payment.amount}</span>
-                                        </div>
-                                        <div>
-                                            <strong style="color: #333 !important;">Date:</strong> 
-                                            <span class="date-display" style="color: #555 !important;">#{paymentBean.formatDateTime(payment.paymentDate)}</span>
-                                        </div>
-                                        <div>
-                                            <strong style="color: #333 !important;">Method:</strong> 
-                                            <span style="color: #555 !important;">#{payment.paymentMethod}</span>
-                                        </div>
-                                        <div>
-                                            <strong style="color: #333 !important;">Status:</strong> 
-                                            <span class="status #{payment.status == 'COMPLETED' ? 'status-active' : (payment.status == 'PENDING' ? 'status-pending' : 'status-cancelled')}">#{payment.status}</span>
-                                        </div>
-                                    </div>
-                                    <p style="margin-top: 10px; color: #555 !important;">
-                                        <strong style="color: #333 !important;">Transaction ID:</strong> #{payment.transactionId}
-                                    </p>
-                                </div>
+                    <div class="card">
+                        <h2>🛠️ Admin Shortcuts</h2>
+                        <div class="stats-grid">
+                            <div class="stat-card">
+                                <div class="stat-value">📚</div>
+                                <div class="stat-label">Manage Courses</div>
+                                <h:form style="margin-top: 15px;">
+                                    <h:commandButton value="Go to Courses" action="admin"
+                                                    styleClass="button button-small"
+                                                    style="width: 100%;"/>
+                                </h:form>
+                            </div>
+                            <div class="stat-card">
+                                <div class="stat-value">👥</div>
+                                <div class="stat-label">Manage Users</div>
+                                <h:form style="margin-top: 15px;">
+                                    <h:commandButton value="Go to Users" action="manageUsers"
+                                                    styleClass="button button-small"
+                                                    style="width: 100%;"/>
+                                </h:form>
                             </div>
                         </div>
-                    </ui:repeat>
-                    <ui:fragment rendered="#{empty paymentBean.payments}">
-                        <div class="empty-state">
-                            <p style="color: #666 !important;">No payment history</p>
+                        <p style="color: #555 !important; margin-top: 20px;">
+                            Use the buttons above to jump directly into course or user management. Student-facing features are hidden while you're in admin mode.
+                        </p>
+                    </div>
+                </ui:fragment>
+
+                <ui:fragment rendered="#{not studentBean.admin}">
+                    <!-- Welcome Section -->
+                    <div class="welcome-card">
+                        <h2 style="color: white !important;">Welcome back, #{studentBean.currentStudent.firstName} #{studentBean.currentStudent.lastName}! 👋</h2>
+                        <p style="color: white !important; opacity: 0.95; margin: 10px 0;">#{studentBean.currentStudent.email}</p>
+                        <div style="margin-top: 20px;">
+                            <h:form>
+                                <h:commandButton value="Browse Courses" action="courseList" 
+                                                styleClass="button button-outline" style="margin-right: 10px; color: white !important; border-color: white !important;"/>
+                                <h:commandButton value="Edit Profile" action="profile" 
+                                                styleClass="button button-outline" style="margin-right: 10px; color: white !important; border-color: white !important;"/>
+                                <h:commandButton value="Logout" action="#{studentBean.logout}" 
+                                                styleClass="button" style="background: rgba(255, 255, 255, 0.2) !important; color: white !important; border: 2px solid white !important;"/>
+                            </h:form>
                         </div>
-                    </ui:fragment>
-                </div>
+                    </div>
+
+                    <!-- Statistics -->
+                    <div class="stats-grid">
+                        <div class="stat-card">
+                            <div class="stat-value">#{enrollmentBean.activeEnrollmentsCount}</div>
+                            <div class="stat-label">Active Enrollments</div>
+                        </div>
+                        <div class="stat-card">
+                            <div class="stat-value">#{paymentBean.totalPaymentsCount}</div>
+                            <div class="stat-label">Total Payments</div>
+                        </div>
+                        <div class="stat-card">
+                            <div class="stat-value">₹#{paymentBean.totalSpent}</div>
+                            <div class="stat-label">Total Spent</div>
+                        </div>
+                    </div>
+
+                    <!-- My Enrollments -->
+                    <div class="card">
+                        <h2>📚 My Enrollments</h2>
+                        <ui:repeat value="#{enrollmentBean.enrollments}" var="enrollment">
+                            <div class="enrollment-item">
+                                <div style="display: flex; justify-content: space-between; align-items: start; flex-wrap: wrap;">
+                                    <div style="flex: 1;">
+                                        <h3 style="color: var(--primary-color) !important;">#{enrollment.course.courseName}</h3>
+                                        <p style="color: #555 !important; margin: 5px 0;">👨‍🏫 #{enrollment.course.instructor}</p>
+                                        <p style="color: #555 !important; margin: 5px 0;">💰 ₹#{enrollment.course.fee}</p>
+                                        <p style="color: #555 !important; margin: 5px 0;">📅 Enrolled: #{enrollmentBean.formatDateTime(enrollment.enrollmentDate)}</p>
+                                        <p style="margin-top: 10px;">
+                                            <span class="status #{enrollment.status == 'ACTIVE' ? 'status-active' : 'status-cancelled'}">
+                                                #{enrollment.status}
+                                            </span>
+                                        </p>
+                                    </div>
+                                    <div>
+                                        <ui:fragment rendered="#{enrollment.status == 'ACTIVE'}">
+                                            <h:form>
+                                                <h:commandButton value="Cancel Enrollment" 
+                                                                action="#{enrollmentBean.cancelEnrollment}"
+                                                                styleClass="button button-danger button-small"
+                                                                onclick="return confirm('Are you sure you want to cancel this enrollment?');">
+                                                    <f:param name="enrollmentId" value="#{enrollment.enrollmentId}"/>
+                                                </h:commandButton>
+                                            </h:form>
+                                        </ui:fragment>
+                                    </div>
+                                </div>
+                            </div>
+                        </ui:repeat>
+                        <ui:fragment rendered="#{empty enrollmentBean.enrollments}">
+                            <div class="empty-state">
+                                <p style="color: #666 !important;">No enrollments yet</p>
+                                <h:form>
+                                    <h:commandButton value="Browse Courses" action="courseList" 
+                                                    styleClass="button" style="margin-top: 20px;"/>
+                                </h:form>
+                            </div>
+                        </ui:fragment>
+                    </div>
+
+                    <!-- Payment History -->
+                    <div class="card">
+                        <h2>💳 Payment History</h2>
+                        <ui:repeat value="#{paymentBean.payments}" var="payment">
+                            <div class="payment-item">
+                                <div style="display: flex; justify-content: space-between; align-items: start; flex-wrap: wrap;">
+                                    <div style="flex: 1;">
+                                        <h3 style="color: var(--primary-color) !important;">#{payment.course.courseName}</h3>
+                                        <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 15px; margin-top: 10px;">
+                                            <div>
+                                                <strong style="color: #333 !important;">Amount:</strong> 
+                                                <span class="price price-small" style="color: var(--success-color) !important;">₹#{payment.amount}</span>
+                                            </div>
+                                            <div>
+                                                <strong style="color: #333 !important;">Date:</strong> 
+                                                <span class="date-display" style="color: #555 !important;">#{paymentBean.formatDateTime(payment.paymentDate)}</span>
+                                            </div>
+                                            <div>
+                                                <strong style="color: #333 !important;">Method:</strong> 
+                                                <span style="color: #555 !important;">#{payment.paymentMethod}</span>
+                                            </div>
+                                            <div>
+                                                <strong style="color: #333 !important;">Status:</strong> 
+                                                <span class="status #{payment.status == 'COMPLETED' ? 'status-active' : (payment.status == 'PENDING' ? 'status-pending' : 'status-cancelled')}">#{payment.status}</span>
+                                            </div>
+                                        </div>
+                                        <p style="margin-top: 10px; color: #555 !important;">
+                                            <strong style="color: #333 !important;">Transaction ID:</strong> #{payment.transactionId}
+                                        </p>
+                                    </div>
+                                </div>
+                            </div>
+                        </ui:repeat>
+                        <ui:fragment rendered="#{empty paymentBean.payments}">
+                            <div class="empty-state">
+                                <p style="color: #666 !important;">No payment history</p>
+                            </div>
+                        </ui:fragment>
+                    </div>
+                </ui:fragment>
             </ui:fragment>
 
             <ui:fragment rendered="#{empty studentBean.currentStudent}">

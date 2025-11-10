@@ -18,19 +18,23 @@
                 <h1>🎓 Online Course Enrollment System</h1>
                 <div class="nav-links">
                     <h:form>
-                        <h:commandButton value="Home" action="home" styleClass="button button-outline" style="color: white !important; border-color: white !important;"/>
-                        <h:commandButton value="Courses" action="courseList" styleClass="button button-outline" style="color: white !important; border-color: white !important;"/>
-                        <ui:fragment rendered="#{not empty studentBean.currentStudent}">
-                            <h:commandButton value="Dashboard" action="dashboard" styleClass="button button-outline" style="color: white !important; border-color: white !important;"/>
-                            <h:commandButton value="Profile" action="profile" styleClass="button button-outline" style="color: white !important; border-color: white !important;"/>
-                            <ui:fragment rendered="#{studentBean.admin}">
-                                <h:commandButton value="Admin" action="admin" styleClass="button button-outline" style="color: white !important; border-color: white !important;"/>
-                            </ui:fragment>
+                        <ui:fragment rendered="#{studentBean.admin}">
+                            <h:commandButton value="Manage Courses" action="admin" styleClass="button button-outline" style="color: white !important; border-color: white !important;"/>
+                            <h:commandButton value="Manage Users" action="manageUsers" styleClass="button button-outline" style="color: white !important; border-color: white !important;"/>
                             <h:commandButton value="Logout" action="#{studentBean.logout}" styleClass="button button-outline" style="color: white !important; border-color: white !important;"/>
                         </ui:fragment>
-                        <ui:fragment rendered="#{empty studentBean.currentStudent}">
-                            <h:commandButton value="Login" action="home" styleClass="button button-outline" style="color: white !important; border-color: white !important;"/>
-                            <h:commandButton value="Register" action="register" styleClass="button button-outline" style="color: white !important; border-color: white !important;"/>
+                        <ui:fragment rendered="#{not studentBean.admin}">
+                            <h:commandButton value="Home" action="home" styleClass="button button-outline" style="color: white !important; border-color: white !important;"/>
+                            <h:commandButton value="Courses" action="courseList" styleClass="button button-outline" style="color: white !important; border-color: white !important;"/>
+                            <ui:fragment rendered="#{not empty studentBean.currentStudent}">
+                                <h:commandButton value="Dashboard" action="dashboard" styleClass="button button-outline" style="color: white !important; border-color: white !important;"/>
+                                <h:commandButton value="Profile" action="profile" styleClass="button button-outline" style="color: white !important; border-color: white !important;"/>
+                                <h:commandButton value="Logout" action="#{studentBean.logout}" styleClass="button button-outline" style="color: white !important; border-color: white !important;"/>
+                            </ui:fragment>
+                            <ui:fragment rendered="#{empty studentBean.currentStudent}">
+                                <h:commandButton value="Login" action="home" styleClass="button button-outline" style="color: white !important; border-color: white !important;"/>
+                                <h:commandButton value="Register" action="register" styleClass="button button-outline" style="color: white !important; border-color: white !important;"/>
+                            </ui:fragment>
                         </ui:fragment>
                     </h:form>
                 </div>
