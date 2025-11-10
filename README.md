@@ -194,5 +194,3 @@ http://localhost:8080/online-course-enrollment/
 
 ---
 
-**Built with ❤️ using JSF, Hibernate, and MySQL on WildFly**
-
